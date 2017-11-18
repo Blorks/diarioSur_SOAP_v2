@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jax-ws xmlns="http://www.netbeans.org/ns/jax-ws/1">
   <services>
-    <service name="CRUD">
-      <implementation-class>webServices.CRUD</implementation-class>
+    <service name="crud">
+      <implementation-class>webService.crud</implementation-class>
     </service>
   </services>
   <clients/>
