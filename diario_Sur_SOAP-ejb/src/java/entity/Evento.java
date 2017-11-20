@@ -57,7 +57,7 @@ public class Evento implements Serializable {
     @Column(name = "PRECIO")
     private Double precio;
     @Column(name = "ESTAREVISADO")
-    private Character estarevisado;
+    private int estarevisado;
     @JoinTable(name = "CALENDARIO", joinColumns = {
         @JoinColumn(name = "EVENTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
         @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")})
@@ -117,11 +117,11 @@ public class Evento implements Serializable {
         this.precio = precio;
     }
 
-    public Character getEstarevisado() {
+    public int getEstarevisado() {
         return estarevisado;
     }
 
-    public void setEstarevisado(Character estarevisado) {
+    public void setEstarevisado(int estarevisado) {
         this.estarevisado = estarevisado;
     }
 

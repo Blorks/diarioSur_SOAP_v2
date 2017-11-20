@@ -31,7 +31,7 @@ public class EventoFacade extends AbstractFacade<Evento> {
         super(Evento.class);
     }
     
-    public List<Evento> encontrarEventoPorID(int id) {
+    public List<Evento> encontrarEventoByID(int id) {
         Query q; 
         
         q = em.createQuery("select e from Evento e where e.id = :id");
@@ -48,8 +48,10 @@ public class EventoFacade extends AbstractFacade<Evento> {
         return q.getResultList();
     }
     
-    public void crearEvento(String descripcion, String direccionFisica, double precio, boolean estaRevisado, int idUsuario) {
+    public void crearEvento(String descripcion, String direccionFisica, double precio, int estaRevisado, int idUsuario) {
         Query q; 
+        
+        
         
         q = em.createQuery("INSERT INTO Evento e VALUES (:descripcion, :direccionFisica, :precio, :estaRevisado, :idUsuario)");
         q.setParameter("descripcion", descripcion);
@@ -59,7 +61,7 @@ public class EventoFacade extends AbstractFacade<Evento> {
         q.setParameter("idUsuario",  idUsuario);
     }
     
-    public void actualizarEvento(int idEvento, String descripcion, String direccionFisica, double precio, boolean estaRevisado, int idUsuario) {
+    public void actualizarEvento(int idEvento, String descripcion, String direccionFisica, double precio, int estaRevisado, int idUsuario) {
         Query q; 
         
         q = em.createQuery("UPDATE Evento e SET e.descripcion = :descripcion, e.direccionFisica = :direccionFisica, e.precio = :precio, e.estaRevisado = :estaRevisado, e.idUsuario = :idUsuario WHERE e.id = :idEvento");

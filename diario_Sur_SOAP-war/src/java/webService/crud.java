@@ -6,7 +6,9 @@
 package webService;
 
 import entity.Evento;
+import entity.Usuario;
 import facade.EventoFacade;
+import facade.UsuarioFacade;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -25,9 +27,13 @@ public class crud {
     @EJB
     private EventoFacade eventoFacade;
     
+    @EJB
+    private UsuarioFacade usuarioFacade;
+    
+    
     @WebMethod(operationName = "encontrarEventoPorID") //Devuelve una lista con un solo evento
     public List<Evento> encontrarEventoPorID(@WebParam(name = "id") int id) {
-        return eventoFacade.encontrarEventoPorID(id);
+        return eventoFacade.encontrarEventoByID(id);
     }
     
     @WebMethod(operationName = "encontrarEventos") //Devuelve una lista con todos los eventos
@@ -45,16 +51,26 @@ public class crud {
     
     // la funcion devuelve true si el evento se ha creado correctamente, false si no
     public boolean crearEvento(@WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
-                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
-        eventoFacade.crearEvento(descripcion, direccionFisica, precio, estaRevisado, idUsuario);
+                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") int estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
         
-        List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
+        
+        Evento evento = new Evento();
+        evento.setDescripcion(descripcion);
+        evento.setDireccionfisica(direccionFisica);
+        evento.setPrecio(precio);
+        evento.setEstarevisado(estaRevisado);
+        
+        evento.setUsuarioId(usuarioFacade.find(idUsuario));
+        
+        eventoFacade.create(evento);
+       
+        //List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
         
         boolean success = true;
         
-        if(eventos.isEmpty()){
-            success = false;
-        }
+        //if(eventos.isEmpty()){
+            //success = false;
+        //}
         return success;
     }
     
@@ -70,7 +86,7 @@ public class crud {
     
     // la funcion devuelve true si el evento se ha actualizado correctamente, false si no
     public boolean actualizarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
-                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
+                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") int estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
         eventoFacade.actualizarEvento(idEvento, descripcion, direccionFisica, precio, estaRevisado, idUsuario);
         
         List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
@@ -87,7 +103,7 @@ public class crud {
     public boolean eliminarEventoPorID(@WebParam(name = "id") int id) {
         eventoFacade.eliminarEventoPorID(id);
         
-        List<Evento> eventos = eventoFacade.encontrarEventoPorID(id);
+        List<Evento> eventos = eventoFacade.encontrarEventoByID(id);
         
         boolean success = true;
         
