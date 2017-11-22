@@ -8,7 +8,6 @@ package entity;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,7 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -41,7 +39,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Dateev.findByHasta", query = "SELECT d FROM Dateev d WHERE d.hasta = :hasta")
     , @NamedQuery(name = "Dateev.findByVariosdias", query = "SELECT d FROM Dateev d WHERE d.variosdias = :variosdias")
     , @NamedQuery(name = "Dateev.findByListadias", query = "SELECT d FROM Dateev d WHERE d.listadias = :listadias")
-    , @NamedQuery(name = "Dateev.findByEventoId", query = "SELECT d FROM Dateev d WHERE d.eventoId = :eventoId")})
+    , @NamedQuery(name = "Dateev.findByEventoId", query = "SELECT d FROM Dateev d WHERE d.eventoId = :eventoId")
+    , @NamedQuery(name = "Dateev.findByEventoId2", query = "SELECT d FROM Dateev d WHERE d.eventoId2 = :eventoId2")})
 public class Dateev implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -51,12 +50,12 @@ public class Dateev implements Serializable {
     @Column(name = "ID")
     private Integer id;
     @Column(name = "ESUNICO")
-    private Character esunico;
+    private Integer esunico;
     @Column(name = "DIA")
     @Temporal(TemporalType.DATE)
     private Date dia;
     @Column(name = "TODOSLOSDIAS")
-    private Character todoslosdias;
+    private Integer todoslosdias;
     @Column(name = "DESDE")
     @Temporal(TemporalType.DATE)
     private Date desde;
@@ -64,7 +63,7 @@ public class Dateev implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date hasta;
     @Column(name = "VARIOSDIAS")
-    private Character variosdias;
+    private Integer variosdias;
     @Size(max = 4000)
     @Column(name = "LISTADIAS")
     private String listadias;
@@ -72,8 +71,8 @@ public class Dateev implements Serializable {
     @NotNull
     @Column(name = "EVENTO_ID")
     private int eventoId;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "dateevId")
-    private Evento evento;
+    @Column(name = "EVENTO_ID2")
+    private Integer eventoId2;
 
     public Dateev() {
     }
@@ -95,11 +94,11 @@ public class Dateev implements Serializable {
         this.id = id;
     }
 
-    public Character getEsunico() {
+    public Integer getEsunico() {
         return esunico;
     }
 
-    public void setEsunico(Character esunico) {
+    public void setEsunico(Integer esunico) {
         this.esunico = esunico;
     }
 
@@ -111,11 +110,11 @@ public class Dateev implements Serializable {
         this.dia = dia;
     }
 
-    public Character getTodoslosdias() {
+    public Integer getTodoslosdias() {
         return todoslosdias;
     }
 
-    public void setTodoslosdias(Character todoslosdias) {
+    public void setTodoslosdias(Integer todoslosdias) {
         this.todoslosdias = todoslosdias;
     }
 
@@ -135,11 +134,11 @@ public class Dateev implements Serializable {
         this.hasta = hasta;
     }
 
-    public Character getVariosdias() {
+    public Integer getVariosdias() {
         return variosdias;
     }
 
-    public void setVariosdias(Character variosdias) {
+    public void setVariosdias(Integer variosdias) {
         this.variosdias = variosdias;
     }
 
@@ -159,12 +158,12 @@ public class Dateev implements Serializable {
         this.eventoId = eventoId;
     }
 
-    public Evento getEvento() {
-        return evento;
+    public Integer getEventoId2() {
+        return eventoId2;
     }
 
-    public void setEvento(Evento evento) {
-        this.evento = evento;
+    public void setEventoId2(Integer eventoId2) {
+        this.eventoId2 = eventoId2;
     }
 
     @Override

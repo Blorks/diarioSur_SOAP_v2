@@ -16,10 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -38,7 +36,10 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Evento.findById", query = "SELECT e FROM Evento e WHERE e.id = :id")
     , @NamedQuery(name = "Evento.findByDireccionfisica", query = "SELECT e FROM Evento e WHERE e.direccionfisica = :direccionfisica")
     , @NamedQuery(name = "Evento.findByPrecio", query = "SELECT e FROM Evento e WHERE e.precio = :precio")
-    , @NamedQuery(name = "Evento.findByEstarevisado", query = "SELECT e FROM Evento e WHERE e.estarevisado = :estarevisado")})
+    , @NamedQuery(name = "Evento.findByEstarevisado", query = "SELECT e FROM Evento e WHERE e.estarevisado = :estarevisado")
+    , @NamedQuery(name = "Evento.findByDateevId", query = "SELECT e FROM Evento e WHERE e.dateevId = :dateevId")
+    , @NamedQuery(name = "Evento.findByFileevId", query = "SELECT e FROM Evento e WHERE e.fileevId = :fileevId")
+    , @NamedQuery(name = "Evento.findByUsuarioId", query = "SELECT e FROM Evento e WHERE e.usuarioId = :usuarioId")})
 public class Evento implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -57,7 +58,13 @@ public class Evento implements Serializable {
     @Column(name = "PRECIO")
     private Double precio;
     @Column(name = "ESTAREVISADO")
-    private int estarevisado;
+    private Integer estarevisado;
+    @Column(name = "DATEEV_ID")
+    private Integer dateevId;
+    @Column(name = "FILEEV_ID")
+    private Integer fileevId;
+    @Column(name = "USUARIO_ID")
+    private Integer usuarioId;
     @JoinTable(name = "CALENDARIO", joinColumns = {
         @JoinColumn(name = "EVENTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
         @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")})
@@ -68,15 +75,6 @@ public class Evento implements Serializable {
         @JoinColumn(name = "TAG_ID", referencedColumnName = "ID")})
     @ManyToMany
     private List<Tag> tagList;
-    @JoinColumn(name = "DATEEV_ID", referencedColumnName = "ID")
-    @OneToOne(optional = false)
-    private Dateev dateevId;
-    @JoinColumn(name = "FILEEV_ID", referencedColumnName = "ID")
-    @OneToOne(optional = false)
-    private Fileev fileevId;
-    @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")
-    @ManyToOne
-    private Usuario usuarioId;
 
     public Evento() {
     }
@@ -117,12 +115,36 @@ public class Evento implements Serializable {
         this.precio = precio;
     }
 
-    public int getEstarevisado() {
+    public Integer getEstarevisado() {
         return estarevisado;
     }
 
-    public void setEstarevisado(int estarevisado) {
+    public void setEstarevisado(Integer estarevisado) {
         this.estarevisado = estarevisado;
+    }
+
+    public Integer getDateevId() {
+        return dateevId;
+    }
+
+    public void setDateevId(Integer dateevId) {
+        this.dateevId = dateevId;
+    }
+
+    public Integer getFileevId() {
+        return fileevId;
+    }
+
+    public void setFileevId(Integer fileevId) {
+        this.fileevId = fileevId;
+    }
+
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Integer usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
     @XmlTransient
@@ -141,30 +163,6 @@ public class Evento implements Serializable {
 
     public void setTagList(List<Tag> tagList) {
         this.tagList = tagList;
-    }
-
-    public Dateev getDateevId() {
-        return dateevId;
-    }
-
-    public void setDateevId(Dateev dateevId) {
-        this.dateevId = dateevId;
-    }
-
-    public Fileev getFileevId() {
-        return fileevId;
-    }
-
-    public void setFileevId(Fileev fileevId) {
-        this.fileevId = fileevId;
-    }
-
-    public Usuario getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Usuario usuarioId) {
-        this.usuarioId = usuarioId;
     }
 
     @Override

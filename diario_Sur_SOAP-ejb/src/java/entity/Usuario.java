@@ -16,7 +16,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -65,8 +64,6 @@ public class Usuario implements Serializable {
     private List<Tag> tagList;
     @ManyToMany(mappedBy = "usuarioList")
     private List<Evento> eventoList;
-    @OneToMany(mappedBy = "usuarioId")
-    private List<Evento> eventoList1;
 
     public Usuario() {
     }
@@ -139,15 +136,6 @@ public class Usuario implements Serializable {
 
     public void setEventoList(List<Evento> eventoList) {
         this.eventoList = eventoList;
-    }
-
-    @XmlTransient
-    public List<Evento> getEventoList1() {
-        return eventoList1;
-    }
-
-    public void setEventoList1(List<Evento> eventoList1) {
-        this.eventoList1 = eventoList1;
     }
 
     @Override

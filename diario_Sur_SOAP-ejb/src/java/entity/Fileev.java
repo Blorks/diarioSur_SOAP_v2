@@ -7,7 +7,6 @@ package entity;
 
 import java.io.Serializable;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,7 +30,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Fileev.findById", query = "SELECT f FROM Fileev f WHERE f.id = :id")
     , @NamedQuery(name = "Fileev.findByNombre", query = "SELECT f FROM Fileev f WHERE f.nombre = :nombre")
     , @NamedQuery(name = "Fileev.findByUrl", query = "SELECT f FROM Fileev f WHERE f.url = :url")
-    , @NamedQuery(name = "Fileev.findByTipo", query = "SELECT f FROM Fileev f WHERE f.tipo = :tipo")})
+    , @NamedQuery(name = "Fileev.findByTipo", query = "SELECT f FROM Fileev f WHERE f.tipo = :tipo")
+    , @NamedQuery(name = "Fileev.findByEventoId", query = "SELECT f FROM Fileev f WHERE f.eventoId = :eventoId")})
 public class Fileev implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,8 +49,8 @@ public class Fileev implements Serializable {
     @Size(max = 4000)
     @Column(name = "TIPO")
     private String tipo;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "fileevId")
-    private Evento evento;
+    @Column(name = "EVENTO_ID")
+    private Integer eventoId;
 
     public Fileev() {
     }
@@ -92,12 +91,12 @@ public class Fileev implements Serializable {
         this.tipo = tipo;
     }
 
-    public Evento getEvento() {
-        return evento;
+    public Integer getEventoId() {
+        return eventoId;
     }
 
-    public void setEvento(Evento evento) {
-        this.evento = evento;
+    public void setEventoId(Integer eventoId) {
+        this.eventoId = eventoId;
     }
 
     @Override
