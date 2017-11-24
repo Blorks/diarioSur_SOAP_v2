@@ -31,11 +31,36 @@ public class EventoFacade extends AbstractFacade<Evento> {
         super(Evento.class);
     }
     
-        public List<Evento> encontrarEventoByID(int id) {
+    public List<Evento> encontrarEventoByID(int id) {
         Query q; 
         
         q = em.createQuery("select e from Evento e where e.id = :id");
         q.setParameter("id",  id);
+        return q.getResultList();
+    }
+    
+    public List<Evento> encontrarEventoByUsuario(int id) {
+        Query q; 
+        
+        q = em.createQuery("select e from Evento e where e.usuarioId = :id");
+        q.setParameter("id",  id);
+        return q.getResultList();
+    }
+    
+    public List<Evento> encontrarEventoByPrecioMax(double precioMax) {
+        Query q; 
+        
+        q = em.createQuery("select e from Evento e where e.precio <= :precioMax");
+        q.setParameter("precioMax", precioMax);
+        return q.getResultList();
+    }
+    
+    public List<Evento> encontrarEventosNoRevisados() {
+        Query q;
+        int estaRevisadoTemp = 0;
+        
+        q = em.createQuery("select e from Evento e where e.estarevisado = :estaRevisadoTemp");
+        q.setParameter("estaRevisadoTemp", estaRevisadoTemp);
         return q.getResultList();
     }
     

@@ -5,10 +5,13 @@
  */
 package facade;
 
+import entity.Evento;
 import entity.Fileev;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +30,14 @@ public class FileevFacade extends AbstractFacade<Fileev> {
 
     public FileevFacade() {
         super(Fileev.class);
+    }
+    
+    public List<Fileev> encontrarArchivoPorURL(String url) {
+        Query q; 
+        
+        q = em.createQuery("select a from Fileev a where a.url like :url");
+        q.setParameter("url", url);
+        return q.getResultList();
     }
     
 }

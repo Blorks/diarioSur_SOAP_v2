@@ -6,9 +6,13 @@
 package facade;
 
 import entity.Dateev;
+import entity.Evento;
+import java.util.Date;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +31,31 @@ public class DateevFacade extends AbstractFacade<Dateev> {
 
     public DateevFacade() {
         super(Dateev.class);
+    }
+    
+    public List<Dateev> encontrarFechaPorDia(Date dia) {
+        Query q; 
+        
+        q = em.createQuery("select f from Dateev f where f.dia = :dia");
+        q.setParameter("dia", dia);
+        return q.getResultList();
+    }
+    
+    public List<Dateev> encontrarFechaPorInicioFin(Date inicio, Date fin) {
+        Query q; 
+        
+        q = em.createQuery("select f from Dateev f where f.desde = :inicio AND f.hasta = :fin");
+        q.setParameter("inicio", inicio);
+        q.setParameter("fin", fin);
+        return q.getResultList();
+    }
+        
+    public List<Dateev> encontrarFechaPorListaDias(String listaDias) {
+        Query q; 
+        
+        q = em.createQuery("select f from Dateev f where f.listadias like :listaDias");
+        q.setParameter("listaDias", listaDias);
+        return q.getResultList();
     }
     
 }
