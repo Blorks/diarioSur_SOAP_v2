@@ -6,7 +6,6 @@
 package facade;
 
 import entity.Dateev;
-import entity.Evento;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;

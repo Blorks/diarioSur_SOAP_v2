@@ -5,15 +5,20 @@
  */
 package webService;
 
+import entity.Calendario;
 import entity.Dateev;
 import entity.Evento;
 import entity.Fileev;
+import entity.Usuario;
+import facade.CalendarioFacade;
 import facade.DateevFacade;
 import facade.EventoFacade;
 import facade.FileevFacade;
+import facade.UsuarioFacade;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -24,36 +29,38 @@ import javax.jws.WebService;
  */
 @WebService(serviceName = "crud")
 public class crud {
-
     @EJB
     private EventoFacade eventoFacade;
-    
     @EJB
     private FileevFacade fileevFacade;
-    
     @EJB
     private DateevFacade dateevFacade;
+    @EJB
+    private UsuarioFacade usuarioFacade;
+    @EJB
+    private CalendarioFacade calendarioFacade;
     
     /* METODOS PARA LO REFERENTE A LOS EVENTOS */
 
     @WebMethod(operationName = "encontrarEventoPorID") //Devuelve una lista con un solo evento
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
-    public List<Evento> encontrarEventoPorID(@WebParam(name = "id") int id) {
+    public Evento encontrarEventoPorID(@WebParam(name = "id") int id) {
         List<Evento> listaEvento = eventoFacade.encontrarEventoByID(id);
         
         if(listaEvento.isEmpty()){
             return null;
         }else{
-            return listaEvento;
+            return listaEvento.get(0);
         }
     }
     
-    @WebMethod(operationName = "listarTodosLosEventos") //Devuelve una lista con todos los eventos
+    @WebMethod(operationName = "encontrarTodosLosEventos") //Devuelve una lista con todos los eventos
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
     public List<Evento> listarTodosLosEventos() {
         return eventoFacade.findAll();
     }
     
+
     @WebMethod(operationName = "crearEvento")
     // ATRIBUTOS
     // descripcion -> String con la descripción del evento (maximo 4000 caracteres)
@@ -69,7 +76,7 @@ public class crud {
     public boolean crearEvento(@WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
                 @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
         
-        
+        Usuario user = encontrarUsuarioPorID(idUsuario);
         Evento evento = new Evento();
         int revisado=0;
         if(estaRevisado){
@@ -82,17 +89,24 @@ public class crud {
         evento.setEstarevisado(revisado);
         evento.setDateevId(0);
         evento.setFileevId(0);
-        evento.setUsuarioId(idUsuario);
+        evento.setUsuarioId(user);
         
         eventoFacade.create(evento);
-       
+
         List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
         
         boolean success = true;
         
         if(eventos.isEmpty()){
             success = false;
+        }else{
+            Calendario cal = new Calendario();
+            cal.setEventoId(eventos.get(0));
+            cal.setUsuarioId(user);
+            
+            calendarioFacade.create(cal);
         }
+        
         return success;
     }
     
@@ -111,7 +125,7 @@ public class crud {
     public boolean editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
                 @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado) {
         
-        Evento evento = encontrarEventoPorID(idEvento).get(0);
+        Evento evento = encontrarEventoPorID(idEvento);
         int revisado=0;
         if(estaRevisado){
             revisado=1;
@@ -135,7 +149,7 @@ public class crud {
     
     @WebMethod(operationName = "revisarEvento") //Cambia el estado del evento al booleano que se le pasa
     public boolean revisarEvento(@WebParam(name = "id") int id, @WebParam(name = "estaRevisado") boolean estaRevisado) {
-        Evento evento = encontrarEventoPorID(id).get(0);
+        Evento evento = encontrarEventoPorID(id);
         
         int revisado=0;
         if(estaRevisado){
@@ -145,7 +159,7 @@ public class crud {
         evento.setEstarevisado(revisado);
         eventoFacade.edit(evento);
         
-        Evento eventoTemp = encontrarEventoPorID(id).get(0);
+        Evento eventoTemp = encontrarEventoPorID(id);
         
         boolean success = true;
         
@@ -155,18 +169,21 @@ public class crud {
         return success;
     }
     
-    @WebMethod(operationName = "eliminarEvento(NO_FUNCIONA)") //Si no consigue borrar el evento, devuelve false
-    public boolean eliminarEvento(@WebParam(name = "id") int id) {
-        //Evento evento = encontrarEventoPorID(id);
+    @WebMethod(operationName = "eliminarEvento") //Si no consigue borrar el evento, devuelve false
+    @Oneway
+    public void eliminarEvento(@WebParam(name = "id") int id) {
+        Evento evento = encontrarEventoPorID(id);
+        
+        eventoFacade.remove(evento);
 
         //Evento eventoTemp = encontrarEventoPorID(id);
 
-        boolean success = true;
+        //boolean success = true;
         
         //if(eventoTemp == null){
             //success = false;
         //}
-        return success;
+        //return success;
     }
     
     /* METODOS PARA LO REFERENTE A LOS ARCHIVOS */
@@ -192,6 +209,10 @@ public class crud {
                                 // de crear uno nuevo
     }
     
+    private void borrarArchivo(int id){
+        
+    }
+    
     
     @WebMethod(operationName = "adjuntarArchivo") //Cambia el estado del evento al booleano que se le pasa
     public boolean adjuntarArchivo(@WebParam(name = "nombre") String nombre, @WebParam(name = "URL") String url, @WebParam(name = "tipo") String tipo,
@@ -199,13 +220,13 @@ public class crud {
         
         List<Fileev> archivoCreado = crearArchivo(nombre, url, tipo, idEvento);
 
-        Evento evento = encontrarEventoPorID(idEvento).get(0);
+        Evento evento = encontrarEventoPorID(idEvento);
         
         evento.setFileevId(archivoCreado.get(0).getId());
         
         eventoFacade.edit(evento);
         
-        Evento eventoTemp = encontrarEventoPorID(idEvento).get(0);
+        Evento eventoTemp = encontrarEventoPorID(idEvento);
         boolean success = true;
         
         int idArchivo = archivoCreado.get(0).getId();
@@ -297,13 +318,13 @@ public class crud {
         
         List<Dateev> fechaCreada = crearFecha(esUnico, dia, todosLosDias, inicio, fin, variosDias, listaDias);
 
-        Evento evento = encontrarEventoPorID(idEvento).get(0);
+        Evento evento = encontrarEventoPorID(idEvento);
         
         evento.setDateevId(fechaCreada.get(0).getId());
         
         eventoFacade.edit(evento);
         
-        Evento eventoTemp = encontrarEventoPorID(idEvento).get(0);
+        Evento eventoTemp = encontrarEventoPorID(idEvento);
         boolean success = true;
         
         int idFecha = fechaCreada.get(0).getId();
@@ -316,10 +337,86 @@ public class crud {
     
     /* METODOS PARA LO REFERENTE A LOS USUARIOS */
     
+    @WebMethod(operationName = "encontrarUsuarioPorID") //Devuelve una lista con un solo evento
+    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    public Usuario encontrarUsuarioPorID(@WebParam(name = "id") int id) {
+        List<Usuario> userList = usuarioFacade.encontrarUsuarioPorID(id);
+        
+        if(userList.isEmpty()){
+            return null;
+        }else{
+            return userList.get(0);
+        }
+    }
+    
+    @WebMethod(operationName = "encontrarUsuarioPorEmail") //Devuelve una lista con un solo evento
+    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    public Usuario encontrarUsuarioPorEmail(@WebParam(name = "email") String email) {
+        List<Usuario> userList = usuarioFacade.encontrarUsuarioPorEmail(email);
+        
+        if(userList.isEmpty()){
+            return null;
+        }else{
+            return userList.get(0);
+        }
+    }
+    
+    @WebMethod(operationName = "editarUsuario")
+    public boolean editarUsuario(@WebParam(name = "idUsuario") int idUsuario, @WebParam(name = "nombre") String nombre, @WebParam(name = "apellidos") String apellidos,
+            @WebParam(name = "email") String email, @WebParam(name = "rol") String rol) {
+        
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        List<Usuario> userEmail = usuarioFacade.encontrarUsuarioPorEmail(email);
+        boolean success = true;
+
+        user.setNombre(nombre);
+        user.setApellidos(apellidos);
+        
+        if(userEmail.isEmpty()){
+            user.setEmail(email);
+        }else{
+            success = false;
+        }
+        
+        user.setRol(rol);
+        
+        if(success){
+            usuarioFacade.edit(user);
+        
+            List<Usuario> userTemp = usuarioFacade.encontrarUsuarioPorEmail(email);
+        
+        
+            if(userTemp.isEmpty()){
+                success = false;
+            }
+        }
+        
+        return success;
+    }
+    
+    @WebMethod(operationName = "eliminarUsuario")
+    @Oneway
+    public void eliminarUsuario(@WebParam(name = "idUsuario") int idUsuario) {
+        //List<Usuario> user = usuarioFacade.encontrarUsuarioPorID(idUsuario);
+        //boolean success = false;
+        
+        usuarioFacade.eliminarUsuarioPorID(idUsuario);
+        
+        /*
+        List<Usuario >listaUsuario = usuarioFacade.encontrarUsuarioPorID(idUsuario);
+        
+        if(listaUsuario.isEmpty()){
+            success = true;
+        }
+        
+        return success;
+        */
+    }
+    
     @WebMethod(operationName = "filtrarEventosDeUsuario") //Devuelve una lista con un solo evento
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
-    public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "id") int id) {
-        List<Evento> listaEvento = eventoFacade.encontrarEventoByUsuario(id);
+    public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "idUsuario") int idUsuario){ 
+        List<Evento> listaEvento = eventoFacade.encontrarEventoByUsuario(idUsuario);
         
         if(listaEvento.isEmpty()){
             return null;
@@ -328,6 +425,7 @@ public class crud {
         }
     }
     
+    @WebMethod(operationName = "filtrarEventosPorPrecioMaximo")
     public List<Evento> filtrarEventosPorPrecioMaximo(@WebParam(name = "precioMax") double precioMax) {
         List<Evento> listaEvento = eventoFacade.encontrarEventoByPrecioMax(precioMax);
         
@@ -338,6 +436,7 @@ public class crud {
         }
     }
     
+    @WebMethod(operationName = "filtrarEventosNoRevisados")
     public List<Evento> filtrarEventosNoRevisados() {
         List<Evento> listaEvento = eventoFacade.encontrarEventosNoRevisados();
         

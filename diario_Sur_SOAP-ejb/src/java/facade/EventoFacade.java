@@ -73,8 +73,6 @@ public class EventoFacade extends AbstractFacade<Evento> {
         return q.getResultList();
     }
 
-
-    
     public void eliminarEventoPorID(int id) {
         Query q; 
         

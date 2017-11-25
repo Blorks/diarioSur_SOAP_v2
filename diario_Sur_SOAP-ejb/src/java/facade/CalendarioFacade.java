@@ -5,19 +5,17 @@
  */
 package facade;
 
-import entity.Fileev;
-import java.util.List;
+import entity.Calendario;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 /**
  *
  * @author Dani
  */
 @Stateless
-public class FileevFacade extends AbstractFacade<Fileev> {
+public class CalendarioFacade extends AbstractFacade<Calendario> {
 
     @PersistenceContext(unitName = "diario_Sur_SOAP-ejbPU")
     private EntityManager em;
@@ -27,16 +25,8 @@ public class FileevFacade extends AbstractFacade<Fileev> {
         return em;
     }
 
-    public FileevFacade() {
-        super(Fileev.class);
-    }
-    
-    public List<Fileev> encontrarArchivoPorURL(String url) {
-        Query q; 
-        
-        q = em.createQuery("select a from Fileev a where a.url like :url");
-        q.setParameter("url", url);
-        return q.getResultList();
+    public CalendarioFacade() {
+        super(Calendario.class);
     }
     
 }

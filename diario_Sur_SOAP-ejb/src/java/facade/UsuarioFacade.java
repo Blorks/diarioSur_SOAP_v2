@@ -6,9 +6,11 @@
 package facade;
 
 import entity.Usuario;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +29,29 @@ public class UsuarioFacade extends AbstractFacade<Usuario> {
 
     public UsuarioFacade() {
         super(Usuario.class);
+    }
+    
+    public List<Usuario> encontrarUsuarioPorID(int id) {
+        Query q; 
+        
+        q = em.createQuery("select u from Usuario u where u.id = :id");
+        q.setParameter("id",  id);
+        return q.getResultList();
+    }
+    
+    public List<Usuario> encontrarUsuarioPorEmail(String email) {
+        Query q; 
+        
+        q = em.createQuery("select u from Usuario u where u.email like :email");
+        q.setParameter("email",  email);
+        return q.getResultList();
+    }
+    
+    public void eliminarUsuarioPorID(int id) {
+        Query q; 
+        
+        q = em.createQuery("DELETE FROM Usuario u where u.id = :id");
+        q.setParameter("id",  id);
     }
     
 }

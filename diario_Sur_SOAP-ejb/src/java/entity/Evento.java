@@ -8,16 +8,17 @@ package entity;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -38,8 +39,7 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Evento.findByPrecio", query = "SELECT e FROM Evento e WHERE e.precio = :precio")
     , @NamedQuery(name = "Evento.findByEstarevisado", query = "SELECT e FROM Evento e WHERE e.estarevisado = :estarevisado")
     , @NamedQuery(name = "Evento.findByDateevId", query = "SELECT e FROM Evento e WHERE e.dateevId = :dateevId")
-    , @NamedQuery(name = "Evento.findByFileevId", query = "SELECT e FROM Evento e WHERE e.fileevId = :fileevId")
-    , @NamedQuery(name = "Evento.findByUsuarioId", query = "SELECT e FROM Evento e WHERE e.usuarioId = :usuarioId")})
+    , @NamedQuery(name = "Evento.findByFileevId", query = "SELECT e FROM Evento e WHERE e.fileevId = :fileevId")})
 public class Evento implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -63,18 +63,13 @@ public class Evento implements Serializable {
     private Integer dateevId;
     @Column(name = "FILEEV_ID")
     private Integer fileevId;
-    @Column(name = "USUARIO_ID")
-    private Integer usuarioId;
-    @JoinTable(name = "CALENDARIO", joinColumns = {
-        @JoinColumn(name = "EVENTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
-        @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")})
-    @ManyToMany
-    private List<Usuario> usuarioList;
-    @JoinTable(name = "Tag-Evento", joinColumns = {
-        @JoinColumn(name = "EVENTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
-        @JoinColumn(name = "TAG_ID", referencedColumnName = "ID")})
-    @ManyToMany
-    private List<Tag> tagList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoId")
+    private List<Calendario> calendarioList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoId")
+    private List<Tagevento> tageventoList;
+    @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")
+    @ManyToOne
+    private Usuario usuarioId;
 
     public Evento() {
     }
@@ -139,30 +134,30 @@ public class Evento implements Serializable {
         this.fileevId = fileevId;
     }
 
-    public Integer getUsuarioId() {
+    @XmlTransient
+    public List<Calendario> getCalendarioList() {
+        return calendarioList;
+    }
+
+    public void setCalendarioList(List<Calendario> calendarioList) {
+        this.calendarioList = calendarioList;
+    }
+
+    @XmlTransient
+    public List<Tagevento> getTageventoList() {
+        return tageventoList;
+    }
+
+    public void setTageventoList(List<Tagevento> tageventoList) {
+        this.tageventoList = tageventoList;
+    }
+
+    public Usuario getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(Integer usuarioId) {
+    public void setUsuarioId(Usuario usuarioId) {
         this.usuarioId = usuarioId;
-    }
-
-    @XmlTransient
-    public List<Usuario> getUsuarioList() {
-        return usuarioList;
-    }
-
-    public void setUsuarioList(List<Usuario> usuarioList) {
-        this.usuarioList = usuarioList;
-    }
-
-    @XmlTransient
-    public List<Tag> getTagList() {
-        return tagList;
-    }
-
-    public void setTagList(List<Tag> tagList) {
-        this.tagList = tagList;
     }
 
     @Override

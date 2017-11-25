@@ -6,34 +6,30 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Dani
  */
 @Entity
-@Table(name = "TAG")
+@Table(name = "TAGEVENTO")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Tag.findAll", query = "SELECT t FROM Tag t")
-    , @NamedQuery(name = "Tag.findById", query = "SELECT t FROM Tag t WHERE t.id = :id")
-    , @NamedQuery(name = "Tag.findByNombre", query = "SELECT t FROM Tag t WHERE t.nombre = :nombre")})
-public class Tag implements Serializable {
+    @NamedQuery(name = "Tagevento.findAll", query = "SELECT t FROM Tagevento t")
+    , @NamedQuery(name = "Tagevento.findById", query = "SELECT t FROM Tagevento t WHERE t.id = :id")})
+public class Tagevento implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -41,18 +37,17 @@ public class Tag implements Serializable {
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
-    @Size(max = 4000)
-    @Column(name = "NOMBRE")
-    private String nombre;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tagId")
-    private List<Tagevento> tageventoList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tagId")
-    private List<Tagusuario> tagusuarioList;
+    @JoinColumn(name = "EVENTO_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Evento eventoId;
+    @JoinColumn(name = "TAG_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Tag tagId;
 
-    public Tag() {
+    public Tagevento() {
     }
 
-    public Tag(Integer id) {
+    public Tagevento(Integer id) {
         this.id = id;
     }
 
@@ -64,30 +59,20 @@ public class Tag implements Serializable {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Evento getEventoId() {
+        return eventoId;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setEventoId(Evento eventoId) {
+        this.eventoId = eventoId;
     }
 
-    @XmlTransient
-    public List<Tagevento> getTageventoList() {
-        return tageventoList;
+    public Tag getTagId() {
+        return tagId;
     }
 
-    public void setTageventoList(List<Tagevento> tageventoList) {
-        this.tageventoList = tageventoList;
-    }
-
-    @XmlTransient
-    public List<Tagusuario> getTagusuarioList() {
-        return tagusuarioList;
-    }
-
-    public void setTagusuarioList(List<Tagusuario> tagusuarioList) {
-        this.tagusuarioList = tagusuarioList;
+    public void setTagId(Tag tagId) {
+        this.tagId = tagId;
     }
 
     @Override
@@ -100,10 +85,10 @@ public class Tag implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Tag)) {
+        if (!(object instanceof Tagevento)) {
             return false;
         }
-        Tag other = (Tag) object;
+        Tagevento other = (Tagevento) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -112,7 +97,7 @@ public class Tag implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Tag[ id=" + id + " ]";
+        return "entity.Tagevento[ id=" + id + " ]";
     }
     
 }
