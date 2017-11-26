@@ -393,8 +393,9 @@ public class crud {
     
     @WebMethod(operationName = "filtrarEventosDeUsuario") //Devuelve una lista con un solo evento
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
-    public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "idUsuario") int idUsuario){ 
-        List<Evento> listaEvento = eventoFacade.encontrarEventoByUsuario(idUsuario);
+    public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
+        List<Usuario> user = usuarioFacade.encontrarUsuarioPorID(idUsuario);
+        List<Evento> listaEvento = eventoFacade.encontrarEventoByUsuario(user.get(0));
         
         if(listaEvento.isEmpty()){
             return null;

@@ -6,6 +6,7 @@
 package facade;
 
 import entity.Evento;
+import entity.Usuario;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -39,11 +40,11 @@ public class EventoFacade extends AbstractFacade<Evento> {
         return q.getResultList();
     }
     
-    public List<Evento> encontrarEventoByUsuario(int id) {
+    public List<Evento> encontrarEventoByUsuario(Usuario user) {
         Query q; 
         
-        q = em.createQuery("select e from Evento e where e.usuarioId = :id");
-        q.setParameter("id",  id);
+        q = em.createQuery("select e from Evento e where e.usuarioId = :user");
+        q.setParameter("user",  user);
         return q.getResultList();
     }
     
