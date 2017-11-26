@@ -93,7 +93,9 @@ public class crud {
         
         eventoFacade.create(evento);
 
-        List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
+        List<Evento> ev = eventoFacade.ultimoIDInsertado();
+        int idEvento = ev.get(0).getId();
+        List<Evento> eventos = eventoFacade.encontrarEventoByID(idEvento);
         
         boolean success = true;
         
@@ -122,7 +124,7 @@ public class crud {
     // DateevId y FileevId se inicializan a 0 para evitar problemas con el null, ya que si son necesarios, se usará otra función para añadirlos
   
     // la funcion devuelve true si el evento se ha actualizado correctamente, false si no
-    public boolean editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
+    public void editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
                 @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado) {
         
         Evento evento = encontrarEventoPorID(idEvento);
@@ -137,14 +139,6 @@ public class crud {
         evento.setEstarevisado(revisado);
         
         eventoFacade.edit(evento);
-        
-        List<Evento> eventos = eventoFacade.encontrarEventoPorDescripcionYPrecio(descripcion, precio);
-        boolean success = true;
-        
-        if(eventos.isEmpty()){
-            success = false;
-        }
-        return success;
     }
     
     @WebMethod(operationName = "revisarEvento") //Cambia el estado del evento al booleano que se le pasa
@@ -169,22 +163,27 @@ public class crud {
         return success;
     }
     
-    @WebMethod(operationName = "eliminarEvento") //Si no consigue borrar el evento, devuelve false
-    @Oneway
-    public void eliminarEvento(@WebParam(name = "id") int id) {
+    @WebMethod(operationName = "eliminarEvento") //Cambia el estado del evento al booleano que se le pasa
+    public boolean eliminarEvento(@WebParam(name = "id") int id) {
         Evento evento = encontrarEventoPorID(id);
+        List<Calendario> listaCalendario = calendarioFacade.encontrarCalendarioPorEvento(evento);
+        
+        for(int i=0; i<listaCalendario.size(); i++){
+            calendarioFacade.remove(listaCalendario.get(i));
+        }
         
         eventoFacade.remove(evento);
-
-        //Evento eventoTemp = encontrarEventoPorID(id);
-
-        //boolean success = true;
         
-        //if(eventoTemp == null){
-            //success = false;
-        //}
-        //return success;
+        List<Evento> eventoTemp = eventoFacade.encontrarEventoByID(id);
+        
+        boolean success = false;
+        
+        if(eventoTemp.isEmpty()){
+            success = true;
+        }
+        return success;
     }
+    
     
     /* METODOS PARA LO REFERENTE A LOS ARCHIVOS */
     
@@ -209,9 +208,6 @@ public class crud {
                                 // de crear uno nuevo
     }
     
-    private void borrarArchivo(int id){
-        
-    }
     
     
     @WebMethod(operationName = "adjuntarArchivo") //Cambia el estado del evento al booleano que se le pasa
@@ -393,25 +389,7 @@ public class crud {
         
         return success;
     }
-    
-    @WebMethod(operationName = "eliminarUsuario")
-    @Oneway
-    public void eliminarUsuario(@WebParam(name = "idUsuario") int idUsuario) {
-        //List<Usuario> user = usuarioFacade.encontrarUsuarioPorID(idUsuario);
-        //boolean success = false;
-        
-        usuarioFacade.eliminarUsuarioPorID(idUsuario);
-        
-        /*
-        List<Usuario >listaUsuario = usuarioFacade.encontrarUsuarioPorID(idUsuario);
-        
-        if(listaUsuario.isEmpty()){
-            success = true;
-        }
-        
-        return success;
-        */
-    }
+
     
     @WebMethod(operationName = "filtrarEventosDeUsuario") //Devuelve una lista con un solo evento
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio

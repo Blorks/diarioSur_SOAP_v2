@@ -6,9 +6,13 @@
 package facade;
 
 import entity.Calendario;
+import entity.Evento;
+import entity.Usuario;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -29,4 +33,11 @@ public class CalendarioFacade extends AbstractFacade<Calendario> {
         super(Calendario.class);
     }
     
+    public List<Calendario> encontrarCalendarioPorEvento(Evento ev) {
+        Query q; 
+
+        q = em.createQuery("select c from Calendario c where c.eventoId = :ev");
+        q.setParameter("ev",  ev);
+        return q.getResultList();
+    }
 }
