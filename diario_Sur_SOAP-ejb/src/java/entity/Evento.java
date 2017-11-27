@@ -33,16 +33,23 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Evento.findAll", query = "SELECT e FROM Evento e")
+    , @NamedQuery(name = "Evento.findByTitulo", query = "SELECT e FROM Evento e WHERE e.titulo = :titulo")
+    , @NamedQuery(name = "Evento.findBySubtitulo", query = "SELECT e FROM Evento e WHERE e.subtitulo = :subtitulo")
     , @NamedQuery(name = "Evento.findByDescripcion", query = "SELECT e FROM Evento e WHERE e.descripcion = :descripcion")
     , @NamedQuery(name = "Evento.findById", query = "SELECT e FROM Evento e WHERE e.id = :id")
     , @NamedQuery(name = "Evento.findByDireccionfisica", query = "SELECT e FROM Evento e WHERE e.direccionfisica = :direccionfisica")
     , @NamedQuery(name = "Evento.findByPrecio", query = "SELECT e FROM Evento e WHERE e.precio = :precio")
     , @NamedQuery(name = "Evento.findByEstarevisado", query = "SELECT e FROM Evento e WHERE e.estarevisado = :estarevisado")
-    , @NamedQuery(name = "Evento.findByDateevId", query = "SELECT e FROM Evento e WHERE e.dateevId = :dateevId")
-    , @NamedQuery(name = "Evento.findByFileevId", query = "SELECT e FROM Evento e WHERE e.fileevId = :fileevId")})
+    , @NamedQuery(name = "Evento.findByDateevId", query = "SELECT e FROM Evento e WHERE e.dateevId = :dateevId")})
 public class Evento implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @Size(max = 4000)
+    @Column(name = "TITULO")
+    private String titulo;
+    @Size(max = 4000)
+    @Column(name = "SUBTITULO")
+    private String subtitulo;
     @Size(max = 4000)
     @Column(name = "DESCRIPCION")
     private String descripcion;
@@ -61,12 +68,12 @@ public class Evento implements Serializable {
     private Integer estarevisado;
     @Column(name = "DATEEV_ID")
     private Integer dateevId;
-    @Column(name = "FILEEV_ID")
-    private Integer fileevId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoId")
     private List<Calendario> calendarioList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoId")
     private List<Tagevento> tageventoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoId")
+    private List<Archivos> archivosList;
     @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")
     @ManyToOne
     private Usuario usuarioId;
@@ -76,6 +83,22 @@ public class Evento implements Serializable {
 
     public Evento(Integer id) {
         this.id = id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getSubtitulo() {
+        return subtitulo;
+    }
+
+    public void setSubtitulo(String subtitulo) {
+        this.subtitulo = subtitulo;
     }
 
     public String getDescripcion() {
@@ -126,14 +149,6 @@ public class Evento implements Serializable {
         this.dateevId = dateevId;
     }
 
-    public Integer getFileevId() {
-        return fileevId;
-    }
-
-    public void setFileevId(Integer fileevId) {
-        this.fileevId = fileevId;
-    }
-
     @XmlTransient
     public List<Calendario> getCalendarioList() {
         return calendarioList;
@@ -150,6 +165,15 @@ public class Evento implements Serializable {
 
     public void setTageventoList(List<Tagevento> tageventoList) {
         this.tageventoList = tageventoList;
+    }
+
+    @XmlTransient
+    public List<Archivos> getArchivosList() {
+        return archivosList;
+    }
+
+    public void setArchivosList(List<Archivos> archivosList) {
+        this.archivosList = archivosList;
     }
 
     public Usuario getUsuarioId() {

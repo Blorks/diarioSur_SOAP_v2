@@ -5,20 +5,22 @@
  */
 package webService;
 
+import entity.Archivos;
 import entity.Calendario;
 import entity.Dateev;
 import entity.Evento;
 import entity.Fileev;
 import entity.Usuario;
+import facade.ArchivosFacade;
 import facade.CalendarioFacade;
 import facade.DateevFacade;
 import facade.EventoFacade;
 import facade.FileevFacade;
 import facade.UsuarioFacade;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
-import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -39,6 +41,8 @@ public class crud {
     private UsuarioFacade usuarioFacade;
     @EJB
     private CalendarioFacade calendarioFacade;
+    @EJB
+    private ArchivosFacade archivosFacade;
     
     /* METODOS PARA LO REFERENTE A LOS EVENTOS */
 
@@ -73,8 +77,10 @@ public class crud {
     
     
     // la funcion devuelve true si el evento se ha creado correctamente, false si no
-    public boolean crearEvento(@WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
-                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,@WebParam(name = "idUsuario") int idUsuario) {
+    public boolean crearEvento(@WebParam(name = "titulo") String titulo, @WebParam(name = "subtitulo") String subtitulo, 
+                @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
+                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,
+                @WebParam(name = "idUsuario") int idUsuario) {
         
         Usuario user = encontrarUsuarioPorID(idUsuario);
         Evento evento = new Evento();
@@ -83,12 +89,13 @@ public class crud {
             revisado=1;
         }
         
+        evento.setTitulo(titulo);
+        evento.setSubtitulo(subtitulo);
         evento.setDescripcion(descripcion);
         evento.setDireccionfisica(direccionFisica);
         evento.setPrecio(precio);
         evento.setEstarevisado(revisado);
         evento.setDateevId(0);
-        evento.setFileevId(0);
         evento.setUsuarioId(user);
         
         eventoFacade.create(evento);
@@ -124,8 +131,10 @@ public class crud {
     // DateevId y FileevId se inicializan a 0 para evitar problemas con el null, ya que si son necesarios, se usará otra función para añadirlos
   
     // la funcion devuelve true si el evento se ha actualizado correctamente, false si no
-    public void editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
-                @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado) {
+    public void editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "titulo") String titulo, 
+            @WebParam(name = "subtitulo") String subtitulo, @WebParam(name = "descripcion") String descripcion,
+            @WebParam(name = "direccionFisica") String direccionFisica, @WebParam(name = "precio") double precio ,
+            @WebParam(name = "estaRevisado") boolean estaRevisado) {
         
         Evento evento = encontrarEventoPorID(idEvento);
         int revisado=0;
@@ -133,6 +142,8 @@ public class crud {
             revisado=1;
         }
 
+        evento.setTitulo(titulo);
+        evento.setSubtitulo(subtitulo);
         evento.setDescripcion(descripcion);
         evento.setDireccionfisica(direccionFisica);
         evento.setPrecio(precio);
@@ -167,9 +178,21 @@ public class crud {
     public boolean eliminarEvento(@WebParam(name = "id") int id) {
         Evento evento = encontrarEventoPorID(id);
         List<Calendario> listaCalendario = calendarioFacade.encontrarCalendarioPorEvento(evento);
+        List<Archivos> listaArchivos = archivosFacade.encontrarArchivoPorEvento(evento);
         
         for(int i=0; i<listaCalendario.size(); i++){
             calendarioFacade.remove(listaCalendario.get(i));
+        }
+        
+        String url;
+        for(int i=0; i<listaArchivos.size(); i++){
+            url = listaArchivos.get(i).getFileevId().getUrl();
+            archivosFacade.remove(listaArchivos.get(i));
+            List<Archivos> ar = archivosFacade.encontrarArchivoPorFile(listaArchivos.get(i).getFileevId());
+            if(ar.isEmpty()){
+                List<Fileev> file = fileevFacade.encontrarArchivoPorURL(url);
+                fileevFacade.remove(file.get(0));
+            }
         }
         
         eventoFacade.remove(evento);
@@ -186,9 +209,22 @@ public class crud {
     
     
     /* METODOS PARA LO REFERENTE A LOS ARCHIVOS */
+
+    @WebMethod(operationName = "encontrarArchivosDeEvento") //Cambia el estado del evento al booleano que se le pasa
+    public List<Fileev> encontrarArchivosDeEvento(@WebParam(name = "idEvento") int idEvento){
+        Evento ev = encontrarEventoPorID(idEvento);
+        List<Archivos> listaArchivos = archivosFacade.encontrarArchivoPorEvento(ev);
+        List<Fileev> listaFile = new ArrayList<>();
+        
+        for(int i=0; i<listaArchivos.size(); i++){
+            listaFile.add(listaArchivos.get(i).getFileevId());
+        }
+
+
+        return listaFile;
+    }
     
-    
-    private List<Fileev> crearArchivo(String nombre, String url, String tipo, int idEvento) {
+    private List<Fileev> crearArchivo(String nombre, String url, String tipo) {
         Fileev archivo = new Fileev();
         
         List<Fileev> listaArchivo = fileevFacade.encontrarArchivoPorURL(url);  //supongo que la url es unica por archivo
@@ -197,8 +233,7 @@ public class crud {
             archivo.setNombre(nombre);
             archivo.setUrl(url);
             archivo.setTipo(tipo);
-            archivo.setEventoId(idEvento);
-        
+
             fileevFacade.create(archivo);
             
             listaArchivo = fileevFacade.encontrarArchivoPorURL(url);
@@ -214,31 +249,40 @@ public class crud {
     public boolean adjuntarArchivo(@WebParam(name = "nombre") String nombre, @WebParam(name = "URL") String url, @WebParam(name = "tipo") String tipo,
             @WebParam(name = "idEvento") int idEvento){
         
-        List<Fileev> archivoCreado = crearArchivo(nombre, url, tipo, idEvento);
-
+        List<Fileev> archivoCreado = crearArchivo(nombre, url, tipo);
         Evento evento = encontrarEventoPorID(idEvento);
         
-        evento.setFileevId(archivoCreado.get(0).getId());
+        Archivos archivo = new Archivos();
+        archivo.setEventoId(evento);
+        archivo.setFileevId(archivoCreado.get(0));
         
-        eventoFacade.edit(evento);
+        archivosFacade.create(archivo);
         
-        Evento eventoTemp = encontrarEventoPorID(idEvento);
+        List<Archivos> archivos = archivosFacade.encontrarArchivoPorEventoYArchivo(evento, archivoCreado.get(0));
+
         boolean success = true;
-        
-        int idArchivo = archivoCreado.get(0).getId();
-        if(idArchivo != eventoTemp.getFileevId()){
+
+        if(archivos.isEmpty()){
             success=false;
         }
-        
         return success;
     }
     
-    
-    
-    
+
     /* METODOS PARA LO REFERENTE A LAS FECHAS */
     
-    
+    @WebMethod(operationName = "encontrarFechaDeEvento") //Devuelve una lista con un solo evento
+    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    public Dateev encontrarFechaDeEvento(@WebParam(name = "idEvento") int idEvento) {
+        List<Evento> listaEvento = eventoFacade.encontrarEventoByID(idEvento);
+        List<Dateev> fecha = new ArrayList<>();
+        
+        if(!listaEvento.isEmpty()){
+            fecha = dateevFacade.encontrarFechaPorID(listaEvento.get(0).getDateevId());
+        }
+        
+        return fecha.get(0);
+    }
     
     private List<Dateev> crearFecha(boolean esUnico, Date dia, boolean todosLosDias, Date inicio, Date fin, boolean variosDias, String listaDias) {
         Dateev fecha = new Dateev();

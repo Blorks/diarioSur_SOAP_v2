@@ -39,4 +39,12 @@ public class FileevFacade extends AbstractFacade<Fileev> {
         return q.getResultList();
     }
     
+    public List<Fileev> encontrarArchivoPorID(int id) {
+        Query q; 
+        
+        q = em.createQuery("select a from Fileev a where a.id = :id");
+        q.setParameter("id", id);
+        return q.getResultList();
+    }
+    
 }

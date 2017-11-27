@@ -57,4 +57,12 @@ public class DateevFacade extends AbstractFacade<Dateev> {
         return q.getResultList();
     }
     
+    public List<Dateev> encontrarFechaPorID(int idFecha) {
+        Query q; 
+        
+        q = em.createQuery("select f from Dateev f where f.id = :idFecha");
+        q.setParameter("idFecha", idFecha);
+        return q.getResultList();
+    }
+    
 }

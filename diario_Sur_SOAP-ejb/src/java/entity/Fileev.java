@@ -6,7 +6,9 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,9 +16,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -30,8 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Fileev.findById", query = "SELECT f FROM Fileev f WHERE f.id = :id")
     , @NamedQuery(name = "Fileev.findByNombre", query = "SELECT f FROM Fileev f WHERE f.nombre = :nombre")
     , @NamedQuery(name = "Fileev.findByUrl", query = "SELECT f FROM Fileev f WHERE f.url = :url")
-    , @NamedQuery(name = "Fileev.findByTipo", query = "SELECT f FROM Fileev f WHERE f.tipo = :tipo")
-    , @NamedQuery(name = "Fileev.findByEventoId", query = "SELECT f FROM Fileev f WHERE f.eventoId = :eventoId")})
+    , @NamedQuery(name = "Fileev.findByTipo", query = "SELECT f FROM Fileev f WHERE f.tipo = :tipo")})
 public class Fileev implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,8 +52,8 @@ public class Fileev implements Serializable {
     @Size(max = 4000)
     @Column(name = "TIPO")
     private String tipo;
-    @Column(name = "EVENTO_ID")
-    private Integer eventoId;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fileevId")
+    private List<Archivos> archivosList;
 
     public Fileev() {
     }
@@ -91,12 +94,13 @@ public class Fileev implements Serializable {
         this.tipo = tipo;
     }
 
-    public Integer getEventoId() {
-        return eventoId;
+    @XmlTransient
+    public List<Archivos> getArchivosList() {
+        return archivosList;
     }
 
-    public void setEventoId(Integer eventoId) {
-        this.eventoId = eventoId;
+    public void setArchivosList(List<Archivos> archivosList) {
+        this.archivosList = archivosList;
     }
 
     @Override
