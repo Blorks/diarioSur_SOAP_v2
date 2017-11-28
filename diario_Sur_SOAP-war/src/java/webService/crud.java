@@ -70,18 +70,7 @@ public class crud {
     
 
     @WebMethod(operationName = "crearEvento")
-    // ATRIBUTOS
-    // descripcion -> String con la descripción del evento (maximo 4000 caracteres)
-    // direccionFisica -> String con la dirección del evento (maximo 4000 caracteres)
-    // precio -> el atributo es DOUBLE, no float
-    // estaRevisado -> es un booleano, osea que espero true o false, pero en la BD se guarda como numero
-    // idUsuario -> la id del usuario que ha creado el evento
-    
-    // DateevId y FileevId se inicializan a 0 para evitar problemas con el null, ya que si son necesarios, se usará otra función para añadirlos
-    
-    
-    // la funcion devuelve true si el evento se ha creado correctamente, false si no
-    public boolean crearEvento(@WebParam(name = "titulo") String titulo, @WebParam(name = "subtitulo") String subtitulo, 
+    public int crearEvento(@WebParam(name = "titulo") String titulo, @WebParam(name = "subtitulo") String subtitulo, 
                 @WebParam(name = "descripcion") String descripcion,@WebParam(name = "direccionFisica") String direccionFisica,
                 @WebParam(name = "precio") double precio ,@WebParam(name = "estaRevisado") boolean estaRevisado,
                 @WebParam(name = "idUsuario") int idUsuario) {
@@ -108,10 +97,8 @@ public class crud {
         int idEvento = ev.get(0).getId();
         List<Evento> eventos = eventoFacade.encontrarEventoByID(idEvento);
         
-        boolean success = true;
-        
         if(eventos.isEmpty()){
-            success = false;
+            idEvento = -1;
         }else{
             Calendario cal = new Calendario();
             cal.setEventoId(eventos.get(0));
@@ -120,7 +107,7 @@ public class crud {
             calendarioFacade.create(cal);
         }
         
-        return success;
+        return idEvento;
     }
     
     @WebMethod(operationName = "editarEvento")
