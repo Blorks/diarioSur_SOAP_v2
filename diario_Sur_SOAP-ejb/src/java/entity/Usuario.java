@@ -39,6 +39,9 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Usuario.findByRol", query = "SELECT u FROM Usuario u WHERE u.rol = :rol")})
 public class Usuario implements Serializable {
 
+    @OneToMany(mappedBy = "usuarioId")
+    private List<Notificacion> notificacionList;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -173,6 +176,15 @@ public class Usuario implements Serializable {
     @Override
     public String toString() {
         return "entity.Usuario[ id=" + id + " ]";
+    }
+
+    @XmlTransient
+    public List<Notificacion> getNotificacionList() {
+        return notificacionList;
+    }
+
+    public void setNotificacionList(List<Notificacion> notificacionList) {
+        this.notificacionList = notificacionList;
     }
     
 }

@@ -10,12 +10,14 @@ import entity.Calendario;
 import entity.Dateev;
 import entity.Evento;
 import entity.Fileev;
+import entity.Notificacion;
 import entity.Usuario;
 import facade.ArchivosFacade;
 import facade.CalendarioFacade;
 import facade.DateevFacade;
 import facade.EventoFacade;
 import facade.FileevFacade;
+import facade.NotificacionFacade;
 import facade.UsuarioFacade;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +45,8 @@ public class crud {
     private CalendarioFacade calendarioFacade;
     @EJB
     private ArchivosFacade archivosFacade;
+    @EJB
+    private NotificacionFacade notificacionFacade;
     
     /* METODOS PARA LO REFERENTE A LOS EVENTOS */
 
@@ -58,10 +62,10 @@ public class crud {
         }
     }
     
-    @WebMethod(operationName = "encontrarTodosLosEventos") //Devuelve una lista con todos los eventos
+    @WebMethod(operationName = "encontrarTodosLosEventosRevisados") //Devuelve una lista con todos los eventos
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
-    public List<Evento> listarTodosLosEventos() {
-        return eventoFacade.findAll();
+    public List<Evento> encontrarTodosLosEventosRevisados() {
+        return eventoFacade.encontrarEventosRevisados();
     }
     
 
@@ -435,6 +439,9 @@ public class crud {
     }
 
     
+    /* METODOS PARA LO REFERENTE A LOS FILTROS */
+    
+    
     @WebMethod(operationName = "filtrarEventosDeUsuario") //Devuelve una lista con un solo evento
     //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
     public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
@@ -469,4 +476,57 @@ public class crud {
             return listaEvento;
         }
     }
+    
+    
+    /* METODOS PARA LO REFERENTE A LAS NOTIFICACIONES */
+    
+    @WebMethod(operationName = "encontrarNotificacionesDeUsuario") //Encuentra SOLO las notificaciones NO leidas
+    public List<Notificacion> encontrarNotificacionesDeUsuario(@WebParam(name = "idUsuario") int idUsuario) {
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        
+        return notificacionFacade.encontrarNotificacionesDeUsuario(user);
+    }
+    
+    @WebMethod(operationName = "encontrarTodasLasNotificacionesDeUsuario") //Encuentra TODAS las notificaciones
+    public List<Notificacion> encontrarTodasLasNotificacionesDeUsuario(@WebParam(name = "idUsuario") int idUsuario) {
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        
+        return notificacionFacade.encontrarTodasLasNotificacionesDeUsuario(user);
+    }
+    
+    @WebMethod(operationName = "enviarNotificacion")
+    public boolean enviarNotificacion(@WebParam(name = "descripcion") String descripcion, @WebParam(name = "idUsuario") int idUsuario) {
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        int size1 = encontrarNotificacionesDeUsuario(idUsuario).size();
+        boolean success = false;
+        
+        Notificacion not = new Notificacion();
+        not.setDescripcion(descripcion);
+        not.setLeida(0);
+        not.setUsuarioId(user);
+        
+        notificacionFacade.create(not);
+        
+        if(encontrarNotificacionesDeUsuario(idUsuario).size() == size1+1){
+            success = true;
+        }
+        
+        return success;
+    }
+    
+    @WebMethod(operationName = "marcarNotificacionComoLeida")
+    public boolean marcarNotificacionComoLeida(@WebParam(name = "idNotificacion") int idNotificacion) {
+        Notificacion not = notificacionFacade.encontrarNotificacionByID(idNotificacion).get(0);
+        boolean success = false;
+        
+        not.setLeida(1);
+        
+        notificacionFacade.edit(not);
+        
+        if(notificacionFacade.encontrarNotificacionByID(idNotificacion).get(0).getLeida() == 1){
+            success = true;
+        }
+        
+        return success;
+    } 
 }

@@ -40,6 +40,16 @@ public class EventoFacade extends AbstractFacade<Evento> {
         return q.getResultList();
     }
     
+    public List<Evento> encontrarEventosRevisados() {
+        Query q; 
+        
+        int id=1;
+        
+        q = em.createQuery("select e from Evento e where e.estarevisado = :id");
+        q.setParameter("id",  id);
+        return q.getResultList();
+    }
+    
     public List<Evento> encontrarEventoByUsuario(Usuario user) {
         Query q; 
         
