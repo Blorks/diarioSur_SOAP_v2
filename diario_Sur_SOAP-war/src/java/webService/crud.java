@@ -68,6 +68,12 @@ public class crud {
         return eventoFacade.encontrarEventosRevisados();
     }
     
+    @WebMethod(operationName = "encontrarTodosLosEventos") //Devuelve una lista con todos los eventos
+    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    public List<Evento> encontrarTodosLosEventos() {
+        return eventoFacade.findAll();
+    }
+    
 
     @WebMethod(operationName = "crearEvento")
     public int crearEvento(@WebParam(name = "titulo") String titulo, @WebParam(name = "subtitulo") String subtitulo, 
