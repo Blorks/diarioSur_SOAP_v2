@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -569,7 +570,7 @@ public class crud {
     
     
     @WebMethod(operationName = "adjuntarTagEv") //Cambia el estado del evento al booleano que se le pasa
-    public void adjuntarTagEv(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idEvento") int idEvento){
+    public boolean adjuntarTagEv(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idEvento") int idEvento){
         String[] partes = listaTags.split(",");
         List<Tag> tagCreado;
         String sinEspacio;
@@ -587,10 +588,11 @@ public class crud {
             
             tagEventoFacade.create(tagEv);
         }  
+        return true;
     }
     
     @WebMethod(operationName = "adjuntarTagUser") //Cambia el estado del evento al booleano que se le pasa
-    public void adjuntarTagUser(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idUsuario") int idUsuario){
+    public boolean adjuntarTagUser(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idUsuario") int idUsuario){
         String[] partes = listaTags.split(",");
         List<Tag> tagCreado;
         String sinEspacio;
@@ -607,6 +609,48 @@ public class crud {
             tagUser.setTagId(tagCreado.get(0));
             
             tagUsuarioFacade.create(tagUser);
-        } 
+        }
+        
+        return true;
+    }
+    
+    @WebMethod(operationName = "encontrarTagsDeEvento") //Cambia el estado del evento al booleano que se le pasa
+    public List<Tag> encontrarTagsDeEvento(@WebParam(name = "idEvento") int idEvento){
+        Evento ev = encontrarEventoPorID(idEvento);
+        List<Tagevento> listaTagEv = tagEventoFacade.encontrarTagEv(ev);
+        List<Tag> listaTag = new ArrayList<>();
+        
+        for(int i=0; i<listaTagEv.size(); i++){
+            listaTag.add(listaTagEv.get(i).getTagId());
+        }
+
+
+        return listaTag;
+    }
+    
+    @WebMethod(operationName = "encontrarTagsDeUsuario") //Cambia el estado del evento al booleano que se le pasa
+    public List<Tag> encontrarTagsDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        List<Tagevento> listaTagEv = tagUsuarioFacade.encontrarTagUser(user);
+        List<Tag> listaTag = new ArrayList<>();
+        
+        for(int i=0; i<listaTagEv.size(); i++){
+            listaTag.add(listaTagEv.get(i).getTagId());
+        }
+
+
+        return listaTag;
+    }
+    
+    @WebMethod(operationName = "eliminarTagEv") //Cambia el estado del evento al booleano que se le pasa
+    public boolean eliminarTagEv(@WebParam(name = "idTag") int idTag, @WebParam(name = "idEvento") int idEvento){
+        List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(idTag);
+        
+        if(!tagEv.isEmpty()){
+            
+        }
+
+
+        return true;
     }
 }

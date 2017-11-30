@@ -5,10 +5,15 @@
  */
 package facade;
 
+import entity.Evento;
+import entity.Tagevento;
 import entity.Tagusuario;
+import entity.Usuario;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +32,14 @@ public class TagusuarioFacade extends AbstractFacade<Tagusuario> {
 
     public TagusuarioFacade() {
         super(Tagusuario.class);
+    }
+    
+    public List<Tagevento> encontrarTagUser(Usuario user){
+        Query q;
+        
+        q = em.createQuery("select t from Tagusuario t where t.usuarioId = :user");
+        q.setParameter("user",  user);
+        return q.getResultList();
     }
     
 }
