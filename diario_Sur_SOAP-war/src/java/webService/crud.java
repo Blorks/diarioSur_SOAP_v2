@@ -643,12 +643,14 @@ public class crud {
     }
     
     @WebMethod(operationName = "eliminarTagEv") //Cambia el estado del evento al booleano que se le pasa
-    public boolean eliminarTagEv(@WebParam(name = "idTag") int idTag, @WebParam(name = "idEvento") int idEvento){
-        List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(idTag);
+    public boolean eliminarTagEv(@WebParam(name = "nombre") String nombre, @WebParam(name = "idEvento") int idEvento){
+        List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         
-        if(!tagEv.isEmpty()){
+        //List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorTagyEvento(tag, ev);
+        
+        //if(!tagEv.isEmpty()){
             
-        }
+        //}
 
 
         return true;

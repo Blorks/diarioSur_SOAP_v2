@@ -43,6 +43,15 @@ public class TageventoFacade extends AbstractFacade<Tagevento> {
         return q.getResultList();
     }
     
+    public List<Tagevento> encontrarTagEvPorTagyEvento(Tag tag, Evento ev){
+        Query q;
+        
+        q = em.createQuery("select t from Tagevento t where t.tagId = :tag AND t.eventoId = :ev");
+        q.setParameter("tag",  tag);
+        q.setParameter("ev",  ev);
+        return q.getResultList();
+    }
+    
     public List<Tagevento> encontrarTagEv(Evento ev){
         Query q;
         
