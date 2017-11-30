@@ -35,7 +35,7 @@ public class TagFacade extends AbstractFacade<Tag> {
     public List<Tag> encontrarTagPorNombre(String nombre) {
         Query q; 
         
-        q = em.createQuery("select t from Tag t where t.nombre = :nombre");
+        q = em.createQuery("select t from Tag t where t.nombre like :nombre");
         q.setParameter("nombre",  nombre);
         return q.getResultList();
     }

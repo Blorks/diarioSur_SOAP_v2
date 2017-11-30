@@ -646,19 +646,16 @@ public class crud {
     public boolean eliminarTagEv(@WebParam(name = "nombre") String nombre, @WebParam(name = "idEvento") int idEvento){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Evento ev = encontrarEventoPorID(idEvento);
-        Tagevento tagEvento = new Tagevento();
         
         List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorTagyEvento(tag.get(0), ev);
         
         if(!tagEv.isEmpty()){
-            tagEvento.setEventoId(ev);
-            tagEvento.setTagId(tag.get(0));
-            tagEventoFacade.remove(tagEvento);
+            tagEventoFacade.remove(tagEv.get(0));
             
-            tagEv = tagEventoFacade.encontrarTagEv(ev);
-            List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUserPorID(tagEvento.getTagId().getId());
+            List<Tagevento>tagEvento = tagEventoFacade.encontrarTagEv(ev);
+            List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUserPorID(tagEv.get(0).getId());
             
-            if(tagEv.isEmpty() && tagUsuario.isEmpty()){
+            if(tagEvento.isEmpty() && tagUsuario.isEmpty()){
                 tagFacade.remove(tag.get(0));
             }
         }
@@ -669,19 +666,16 @@ public class crud {
     public boolean eliminarTagUser(@WebParam(name = "nombre") String nombre, @WebParam(name = "idUsuario") int idUsuario){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Usuario user = encontrarUsuarioPorID(idUsuario);
-        Tagusuario tagUsuario = new Tagusuario();
         
         List<Tagusuario> tagUser = tagUsuarioFacade.encontrarTagUserPorTagyUsuario(tag.get(0), user);
         
         if(!tagUser.isEmpty()){
-            tagUsuario.setUsuarioId(user);
-            tagUsuario.setTagId(tag.get(0));
-            tagUsuarioFacade.remove(tagUsuario);
+            tagUsuarioFacade.remove(tagUser.get(0));
             
-            tagUser = tagUsuarioFacade.encontrarTagUser(user);
-            List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUsuario.getTagId().getId());
+            List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUser(user);
+            List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUser.get(0).getId());
             
-            if(tagUser.isEmpty() && tagEv.isEmpty()){
+            if(tagUsuario.isEmpty() && tagEv.isEmpty()){
                 tagFacade.remove(tag.get(0));
             }
         }
