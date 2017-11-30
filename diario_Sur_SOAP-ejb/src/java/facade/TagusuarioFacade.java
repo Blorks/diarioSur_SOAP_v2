@@ -38,7 +38,7 @@ public class TagusuarioFacade extends AbstractFacade<Tagusuario> {
         public List<Tagusuario> encontrarTagUserPorID(int id){
         Query q;
         
-        q = em.createQuery("select t from Tagusuario t where t.id = :id");
+        q = em.createQuery("select t from Tagusuario t where t.tagId.id = :id");
         q.setParameter("id",  id);
         return q.getResultList();
     }

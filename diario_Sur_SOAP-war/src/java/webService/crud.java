@@ -646,6 +646,7 @@ public class crud {
     public boolean eliminarTagEv(@WebParam(name = "nombre") String nombre, @WebParam(name = "idEvento") int idEvento){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Evento ev = encontrarEventoPorID(idEvento);
+        boolean success = true;
         
         List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorTagyEvento(tag.get(0), ev);
         
@@ -657,15 +658,17 @@ public class crud {
             
             if(tagEvento.isEmpty() && tagUsuario.isEmpty()){
                 tagFacade.remove(tag.get(0));
+                success = false;
             }
         }
-        return true;
+        return success;
     }
     
     @WebMethod(operationName = "eliminarTagUser") //Cambia el estado del evento al booleano que se le pasa
     public boolean eliminarTagUser(@WebParam(name = "nombre") String nombre, @WebParam(name = "idUsuario") int idUsuario){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Usuario user = encontrarUsuarioPorID(idUsuario);
+        boolean success = true;
         
         List<Tagusuario> tagUser = tagUsuarioFacade.encontrarTagUserPorTagyUsuario(tag.get(0), user);
         
@@ -673,12 +676,13 @@ public class crud {
             tagUsuarioFacade.remove(tagUser.get(0));
             
             List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUser(user);
-             List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUser.get(0).getId());
+            List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tag.get(0).getId());
             
             if(tagUsuario.isEmpty() && tagEv.isEmpty()){
                 tagFacade.remove(tag.get(0));
+                success = false;
             }
         }
-        return true;
+        return success;
     }
 }
