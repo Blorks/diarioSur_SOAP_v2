@@ -673,7 +673,7 @@ public class crud {
             tagUsuarioFacade.remove(tagUser.get(0));
             
             List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUser(user);
-            List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUser.get(0).getId());
+             List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUser.get(0).getId());
             
             if(tagUsuario.isEmpty() && tagEv.isEmpty()){
                 tagFacade.remove(tag.get(0));
