@@ -6,6 +6,7 @@
 package facade;
 
 import entity.Evento;
+import entity.Tag;
 import entity.Tagevento;
 import entity.Tagusuario;
 import entity.Usuario;
@@ -34,10 +35,27 @@ public class TagusuarioFacade extends AbstractFacade<Tagusuario> {
         super(Tagusuario.class);
     }
     
-    public List<Tagevento> encontrarTagUser(Usuario user){
+        public List<Tagusuario> encontrarTagUserPorID(int id){
+        Query q;
+        
+        q = em.createQuery("select t from Tagusuario t where t.id = :id");
+        q.setParameter("id",  id);
+        return q.getResultList();
+    }
+    
+    public List<Tagusuario> encontrarTagUser(Usuario user){
         Query q;
         
         q = em.createQuery("select t from Tagusuario t where t.usuarioId = :user");
+        q.setParameter("user",  user);
+        return q.getResultList();
+    }
+    
+        public List<Tagusuario> encontrarTagUserPorTagyUsuario(Tag tag, Usuario user){
+        Query q;
+        
+        q = em.createQuery("select t from Tagusuario t where t.tagId = :tag AND t.usuarioId = :user");
+        q.setParameter("tag",  tag);
         q.setParameter("user",  user);
         return q.getResultList();
     }

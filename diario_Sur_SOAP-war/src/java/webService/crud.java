@@ -631,7 +631,7 @@ public class crud {
     @WebMethod(operationName = "encontrarTagsDeUsuario") //Cambia el estado del evento al booleano que se le pasa
     public List<Tag> encontrarTagsDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
         Usuario user = encontrarUsuarioPorID(idUsuario);
-        List<Tagevento> listaTagEv = tagUsuarioFacade.encontrarTagUser(user);
+        List<Tagusuario> listaTagEv = tagUsuarioFacade.encontrarTagUser(user);
         List<Tag> listaTag = new ArrayList<>();
         
         for(int i=0; i<listaTagEv.size(); i++){
@@ -645,14 +645,46 @@ public class crud {
     @WebMethod(operationName = "eliminarTagEv") //Cambia el estado del evento al booleano que se le pasa
     public boolean eliminarTagEv(@WebParam(name = "nombre") String nombre, @WebParam(name = "idEvento") int idEvento){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
+        Evento ev = encontrarEventoPorID(idEvento);
+        Tagevento tagEvento = new Tagevento();
         
-        //List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorTagyEvento(tag, ev);
+        List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorTagyEvento(tag.get(0), ev);
         
-        //if(!tagEv.isEmpty()){
+        if(!tagEv.isEmpty()){
+            tagEvento.setEventoId(ev);
+            tagEvento.setTagId(tag.get(0));
+            tagEventoFacade.remove(tagEvento);
             
-        //}
-
-
+            tagEv = tagEventoFacade.encontrarTagEv(ev);
+            List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUserPorID(tagEvento.getTagId().getId());
+            
+            if(tagEv.isEmpty() && tagUsuario.isEmpty()){
+                tagFacade.remove(tag.get(0));
+            }
+        }
+        return true;
+    }
+    
+    @WebMethod(operationName = "eliminarTagUser") //Cambia el estado del evento al booleano que se le pasa
+    public boolean eliminarTagUser(@WebParam(name = "nombre") String nombre, @WebParam(name = "idUsuario") int idUsuario){
+        List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
+        Usuario user = encontrarUsuarioPorID(idUsuario);
+        Tagusuario tagUsuario = new Tagusuario();
+        
+        List<Tagusuario> tagUser = tagUsuarioFacade.encontrarTagUserPorTagyUsuario(tag.get(0), user);
+        
+        if(!tagUser.isEmpty()){
+            tagUsuario.setUsuarioId(user);
+            tagUsuario.setTagId(tag.get(0));
+            tagUsuarioFacade.remove(tagUsuario);
+            
+            tagUser = tagUsuarioFacade.encontrarTagUser(user);
+            List<Tagevento> tagEv = tagEventoFacade.encontrarTagEvPorID(tagUsuario.getTagId().getId());
+            
+            if(tagUser.isEmpty() && tagEv.isEmpty()){
+                tagFacade.remove(tag.get(0));
+            }
+        }
         return true;
     }
 }
