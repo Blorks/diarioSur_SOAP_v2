@@ -5,10 +5,13 @@
  */
 package facade;
 
+import entity.Evento;
 import entity.Tag;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +30,14 @@ public class TagFacade extends AbstractFacade<Tag> {
 
     public TagFacade() {
         super(Tag.class);
+    }
+    
+    public List<Tag> encontrarTagPorNombre(String nombre) {
+        Query q; 
+        
+        q = em.createQuery("select t from Tag t where t.nombre = :nombre");
+        q.setParameter("nombre",  nombre);
+        return q.getResultList();
     }
     
 }

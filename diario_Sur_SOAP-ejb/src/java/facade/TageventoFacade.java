@@ -5,10 +5,16 @@
  */
 package facade;
 
+import entity.Archivos;
+import entity.Evento;
+import entity.Fileev;
+import entity.Tag;
 import entity.Tagevento;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +33,22 @@ public class TageventoFacade extends AbstractFacade<Tagevento> {
 
     public TageventoFacade() {
         super(Tagevento.class);
+    }
+    
+    public List<Tagevento> encontrarTagEv(Evento ev){
+        Query q;
+        
+        q = em.createQuery("select t from Tagevento t where t.eventoId = :ev");
+        q.setParameter("ev",  ev);
+        return q.getResultList();
+    }
+    
+    public List<Tagevento> encontrarTagEvPorTag(Tag tag) {
+        Query q;
+        
+        q = em.createQuery("select t from Tagevento t where t.tagId = :tag");
+        q.setParameter("tag",  tag);
+        return q.getResultList();
     }
     
 }

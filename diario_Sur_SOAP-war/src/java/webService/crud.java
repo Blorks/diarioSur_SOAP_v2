@@ -11,6 +11,9 @@ import entity.Dateev;
 import entity.Evento;
 import entity.Fileev;
 import entity.Notificacion;
+import entity.Tag;
+import entity.Tagevento;
+import entity.Tagusuario;
 import entity.Usuario;
 import facade.ArchivosFacade;
 import facade.CalendarioFacade;
@@ -18,6 +21,9 @@ import facade.DateevFacade;
 import facade.EventoFacade;
 import facade.FileevFacade;
 import facade.NotificacionFacade;
+import facade.TagFacade;
+import facade.TageventoFacade;
+import facade.TagusuarioFacade;
 import facade.UsuarioFacade;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +53,12 @@ public class crud {
     private ArchivosFacade archivosFacade;
     @EJB
     private NotificacionFacade notificacionFacade;
+    @EJB
+    private TagFacade tagFacade;
+    @EJB
+    private TageventoFacade tagEventoFacade;
+    @EJB
+    private TagusuarioFacade tagUsuarioFacade;
     
     /* METODOS PARA LO REFERENTE A LOS EVENTOS */
 
@@ -176,6 +188,7 @@ public class crud {
         Evento evento = encontrarEventoPorID(id);
         List<Calendario> listaCalendario = calendarioFacade.encontrarCalendarioPorEvento(evento);
         List<Archivos> listaArchivos = archivosFacade.encontrarArchivoPorEvento(evento);
+        List<Tagevento> listaTag = tagEventoFacade.encontrarTagEv(evento);
         
         for(int i=0; i<listaCalendario.size(); i++){
             calendarioFacade.remove(listaCalendario.get(i));
@@ -189,6 +202,17 @@ public class crud {
             if(ar.isEmpty()){
                 List<Fileev> file = fileevFacade.encontrarArchivoPorURL(url);
                 fileevFacade.remove(file.get(0));
+            }
+        }
+        
+        String nombre;
+        for(int i=0; i<listaTag.size(); i++){
+            nombre = listaTag.get(i).getTagId().getNombre();
+            tagEventoFacade.remove(listaTag.get(i));
+            List<Tagevento> te = tagEventoFacade.encontrarTagEvPorTag(listaTag.get(i).getTagId());
+            if(te.isEmpty()){
+                List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
+                tagFacade.remove(tag.get(0));
             }
         }
         
@@ -522,4 +546,67 @@ public class crud {
         
         return success;
     } 
+    
+    /* METODOS PARA LO REFERENTE A LAS NOTIFICACIONES */
+    
+        private List<Tag> crearTag(String nombre) {
+        Tag tag = new Tag();
+        
+        List<Tag> listaTag = tagFacade.encontrarTagPorNombre(nombre);  //supongo que el nombre es unica por archivo
+        
+        if(listaTag.isEmpty()){
+            tag.setNombre(nombre);
+
+            tagFacade.create(tag);
+            
+            listaTag = tagFacade.encontrarTagPorNombre(nombre);
+        }
+        
+        return listaTag; //con esto consigo que no se creen archivos duplicados. Si el archivo ya está en la BD, lo referencio en vez
+                                // de crear uno nuevo
+    }
+    
+    
+    
+    @WebMethod(operationName = "adjuntarTagEv") //Cambia el estado del evento al booleano que se le pasa
+    public void adjuntarTagEv(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idEvento") int idEvento){
+        String[] partes = listaTags.split(",");
+        List<Tag> tagCreado;
+        String sinEspacio;
+        
+        Evento evento = encontrarEventoPorID(idEvento);
+        
+        Tagevento tagEv = new Tagevento();
+        tagEv.setEventoId(evento);
+        
+        for(int i=0;i<partes.length; i++){
+            sinEspacio = partes[i].trim().toLowerCase();
+            tagCreado = crearTag(sinEspacio);
+            
+            tagEv.setTagId(tagCreado.get(0));
+            
+            tagEventoFacade.create(tagEv);
+        }  
+    }
+    
+    @WebMethod(operationName = "adjuntarTagUser") //Cambia el estado del evento al booleano que se le pasa
+    public void adjuntarTagUser(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idUsuario") int idUsuario){
+        String[] partes = listaTags.split(",");
+        List<Tag> tagCreado;
+        String sinEspacio;
+        
+        Usuario usuario = encontrarUsuarioPorID(idUsuario);
+        
+        Tagusuario tagUser = new Tagusuario();
+        tagUser.setUsuarioId(usuario);
+        
+        for(int i=0;i<partes.length; i++){
+            sinEspacio = partes[i].trim().toLowerCase();
+            tagCreado = crearTag(sinEspacio);
+            
+            tagUser.setTagId(tagCreado.get(0));
+            
+            tagUsuarioFacade.create(tagUser);
+        } 
+    }
 }
