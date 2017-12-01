@@ -25,9 +25,13 @@ import facade.TagFacade;
 import facade.TageventoFacade;
 import facade.TagusuarioFacade;
 import facade.UsuarioFacade;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -290,7 +294,7 @@ public class crud {
         return fecha.get(0);
     }
     
-    private List<Dateev> crearFecha(boolean esUnico, Date dia, boolean todosLosDias, Date inicio, Date fin, boolean variosDias, String listaDias) {
+    private List<Dateev> crearFecha(boolean esUnico, String dia, boolean todosLosDias, String inicio, String fin, boolean variosDias, String listaDias) {
         Dateev fecha = new Dateev();
         
         List<Dateev> listaFecha;
@@ -298,13 +302,24 @@ public class crud {
         int todosLosDiasTemp = 0;
         int variosDiasTemp = 0;
         
+        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
         if(esUnico){
             esUnicoTemp = 1;
-            listaFecha = dateevFacade.encontrarFechaPorDia(dia);
+            
+            Date unicoDia = new Date();
+        
+            try {
+                unicoDia = formato.parse(dia);
+            } catch (ParseException ex) {
+                Logger.getLogger(crud.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+            listaFecha = dateevFacade.encontrarFechaPorDia(unicoDia);
             
             if(listaFecha.isEmpty()){
                 fecha.setEsunico(esUnicoTemp);
-                fecha.setDia(dia);
+                fecha.setDia(unicoDia);
                 fecha.setTodoslosdias(todosLosDiasTemp);
                 fecha.setDesde(null);
                 fecha.setHasta(null);
@@ -314,24 +329,35 @@ public class crud {
                 dateevFacade.create(fecha);
             }
             
-            listaFecha = dateevFacade.encontrarFechaPorDia(dia);
+            listaFecha = dateevFacade.encontrarFechaPorDia(unicoDia);
         }else if(todosLosDias){
             todosLosDiasTemp = 1;
-            listaFecha = dateevFacade.encontrarFechaPorInicioFin(inicio,fin);
+            
+            Date desde = new Date();
+            Date hasta = new Date();
+        
+            try {
+                desde = formato.parse(inicio);
+                hasta = formato.parse(fin);
+            } catch (ParseException ex) {
+                Logger.getLogger(crud.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            listaFecha = dateevFacade.encontrarFechaPorInicioFin(desde,hasta);
             
             if(listaFecha.isEmpty()){
                 fecha.setEsunico(esUnicoTemp);
                 fecha.setDia(null);
                 fecha.setTodoslosdias(todosLosDiasTemp);
-                fecha.setDesde(inicio);
-                fecha.setHasta(fin);
+                fecha.setDesde(desde);
+                fecha.setHasta(hasta);
                 fecha.setVariosdias(variosDiasTemp);
                 fecha.setListadias(null);
                 
                 dateevFacade.create(fecha);
             }
             
-            listaFecha = dateevFacade.encontrarFechaPorInicioFin(inicio,fin);
+            listaFecha = dateevFacade.encontrarFechaPorInicioFin(desde,hasta);
         }else{
             variosDiasTemp = 1;
             listaFecha = dateevFacade.encontrarFechaPorListaDias(listaDias);
@@ -356,8 +382,8 @@ public class crud {
     }
     
     @WebMethod(operationName = "adjuntarFecha")
-    public boolean adjuntarFecha(@WebParam(name = "esUnico") boolean esUnico, @WebParam(name = "dia") Date dia, 
-            @WebParam(name = "todosLosDias") boolean todosLosDias, @WebParam(name = "inicio") Date inicio, @WebParam(name = "fin") Date fin,
+    public boolean adjuntarFecha(@WebParam(name = "esUnico") boolean esUnico, @WebParam(name = "dia") String dia, 
+            @WebParam(name = "todosLosDias") boolean todosLosDias, @WebParam(name = "inicio") String inicio, @WebParam(name = "fin") String fin,
             @WebParam(name = "variosDias") boolean variosDias, @WebParam(name = "listaDias") String listaDias,
             @WebParam(name = "idEvento") int idEvento){
         
