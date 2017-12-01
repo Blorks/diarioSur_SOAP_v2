@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
-import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -63,8 +62,7 @@ public class crud {
     
     /* METODOS PARA LO REFERENTE A LOS EVENTOS */
 
-    @WebMethod(operationName = "encontrarEventoPorID") //Devuelve una lista con un solo evento
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarEventoPorID")
     public Evento encontrarEventoPorID(@WebParam(name = "id") int id) {
         List<Evento> listaEvento = eventoFacade.encontrarEventoByID(id);
         
@@ -75,14 +73,12 @@ public class crud {
         }
     }
     
-    @WebMethod(operationName = "encontrarTodosLosEventosRevisados") //Devuelve una lista con todos los eventos
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarTodosLosEventosRevisados")
     public List<Evento> encontrarTodosLosEventosRevisados() {
         return eventoFacade.encontrarEventosRevisados();
     }
     
-    @WebMethod(operationName = "encontrarTodosLosEventos") //Devuelve una lista con todos los eventos
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarTodosLosEventos")
     public List<Evento> encontrarTodosLosEventos() {
         return eventoFacade.findAll();
     }
@@ -130,17 +126,6 @@ public class crud {
     }
     
     @WebMethod(operationName = "editarEvento")
-    // ATRIBUTOS
-    // idEvento -> solo se usa para buscar el evento a actualizar. No se puede modificar
-    
-    // descripcion -> String con la descripción del evento (maximo 4000 caracteres)
-    // direccionFisica -> String con la dirección del evento (maximo 4000 caracteres)
-    // precio -> el atributo es DOUBLE, no float
-    // estaRevisado -> es un booleano, osea que espero true o false, pero en la BD se guarda como numero
-    
-    // DateevId y FileevId se inicializan a 0 para evitar problemas con el null, ya que si son necesarios, se usará otra función para añadirlos
-  
-    // la funcion devuelve true si el evento se ha actualizado correctamente, false si no
     public void editarEvento(@WebParam(name = "idEvento") int idEvento, @WebParam(name = "titulo") String titulo, 
             @WebParam(name = "subtitulo") String subtitulo, @WebParam(name = "descripcion") String descripcion,
             @WebParam(name = "direccionFisica") String direccionFisica, @WebParam(name = "precio") double precio ,
@@ -162,7 +147,7 @@ public class crud {
         eventoFacade.edit(evento);
     }
     
-    @WebMethod(operationName = "revisarEvento") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "revisarEvento")
     public boolean revisarEvento(@WebParam(name = "id") int id, @WebParam(name = "estaRevisado") boolean estaRevisado) {
         Evento evento = encontrarEventoPorID(id);
         
@@ -184,7 +169,7 @@ public class crud {
         return success;
     }
     
-    @WebMethod(operationName = "eliminarEvento") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "eliminarEvento")
     public boolean eliminarEvento(@WebParam(name = "id") int id) {
         Evento evento = encontrarEventoPorID(id);
         List<Calendario> listaCalendario = calendarioFacade.encontrarCalendarioPorEvento(evento);
@@ -211,7 +196,8 @@ public class crud {
             nombre = listaTag.get(i).getTagId().getNombre();
             tagEventoFacade.remove(listaTag.get(i));
             List<Tagevento> te = tagEventoFacade.encontrarTagEvPorTag(listaTag.get(i).getTagId());
-            if(te.isEmpty()){
+            List<Tagusuario> tagUsuario = tagUsuarioFacade.encontrarTagUserPorID(listaTag.get(i).getTagId().getId());
+            if(te.isEmpty() && tagUsuario.isEmpty()){
                 List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
                 tagFacade.remove(tag.get(0));
             }
@@ -232,7 +218,7 @@ public class crud {
     
     /* METODOS PARA LO REFERENTE A LOS ARCHIVOS */
 
-    @WebMethod(operationName = "encontrarArchivosDeEvento") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "encontrarArchivosDeEvento")
     public List<Fileev> encontrarArchivosDeEvento(@WebParam(name = "idEvento") int idEvento){
         Evento ev = encontrarEventoPorID(idEvento);
         List<Archivos> listaArchivos = archivosFacade.encontrarArchivoPorEvento(ev);
@@ -249,7 +235,7 @@ public class crud {
     private List<Fileev> crearArchivo(String nombre, String url, String tipo) {
         Fileev archivo = new Fileev();
         
-        List<Fileev> listaArchivo = fileevFacade.encontrarArchivoPorURL(url);  //supongo que la url es unica por archivo
+        List<Fileev> listaArchivo = fileevFacade.encontrarArchivoPorURL(url);
         
         if(listaArchivo.isEmpty()){
             archivo.setNombre(nombre);
@@ -261,13 +247,12 @@ public class crud {
             listaArchivo = fileevFacade.encontrarArchivoPorURL(url);
         }
         
-        return listaArchivo; //con esto consigo que no se creen archivos duplicados. Si el archivo ya está en la BD, lo referencio en vez
-                                // de crear uno nuevo
+        return listaArchivo;
     }
     
     
     
-    @WebMethod(operationName = "adjuntarArchivo") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "adjuntarArchivo")
     public boolean adjuntarArchivo(@WebParam(name = "nombre") String nombre, @WebParam(name = "URL") String url, @WebParam(name = "tipo") String tipo,
             @WebParam(name = "idEvento") int idEvento){
         
@@ -293,8 +278,7 @@ public class crud {
 
     /* METODOS PARA LO REFERENTE A LAS FECHAS */
     
-    @WebMethod(operationName = "encontrarFechaDeEvento") //Devuelve una lista con un solo evento
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarFechaDeEvento")
     public Dateev encontrarFechaDeEvento(@WebParam(name = "idEvento") int idEvento) {
         List<Evento> listaEvento = eventoFacade.encontrarEventoByID(idEvento);
         List<Dateev> fecha = new ArrayList<>();
@@ -368,11 +352,10 @@ public class crud {
         }
         
         
-        return listaFecha; //con esto consigo que no se creen archivos duplicados. Si el archivo ya está en la BD, lo referencio en vez
-                                // de crear uno nuevo
+        return listaFecha;
     }
     
-    @WebMethod(operationName = "adjuntarFecha") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "adjuntarFecha")
     public boolean adjuntarFecha(@WebParam(name = "esUnico") boolean esUnico, @WebParam(name = "dia") Date dia, 
             @WebParam(name = "todosLosDias") boolean todosLosDias, @WebParam(name = "inicio") Date inicio, @WebParam(name = "fin") Date fin,
             @WebParam(name = "variosDias") boolean variosDias, @WebParam(name = "listaDias") String listaDias,
@@ -399,8 +382,7 @@ public class crud {
     
     /* METODOS PARA LO REFERENTE A LOS USUARIOS */
     
-    @WebMethod(operationName = "encontrarUsuarioPorID") //Devuelve una lista con un solo evento
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarUsuarioPorID")
     public Usuario encontrarUsuarioPorID(@WebParam(name = "id") int id) {
         List<Usuario> userList = usuarioFacade.encontrarUsuarioPorID(id);
         
@@ -411,8 +393,7 @@ public class crud {
         }
     }
     
-    @WebMethod(operationName = "encontrarUsuarioPorEmail") //Devuelve una lista con un solo evento
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "encontrarUsuarioPorEmail")
     public Usuario encontrarUsuarioPorEmail(@WebParam(name = "email") String email) {
         List<Usuario> userList = usuarioFacade.encontrarUsuarioPorEmail(email);
         
@@ -460,8 +441,7 @@ public class crud {
     /* METODOS PARA LO REFERENTE A LOS FILTROS */
     
     
-    @WebMethod(operationName = "filtrarEventosDeUsuario") //Devuelve una lista con un solo evento
-    //Cuidado con el "estaRevisado". En la BD se guarda como un numero, no como un bool, así que al recogerlo habrá que hacer el cambio
+    @WebMethod(operationName = "filtrarEventosDeUsuario")
     public List<Evento> filtrarEventosDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
         List<Usuario> user = usuarioFacade.encontrarUsuarioPorID(idUsuario);
         List<Evento> listaEvento = eventoFacade.encontrarEventoByUsuario(user.get(0));
@@ -498,14 +478,14 @@ public class crud {
     
     /* METODOS PARA LO REFERENTE A LAS NOTIFICACIONES */
     
-    @WebMethod(operationName = "encontrarNotificacionesDeUsuario") //Encuentra SOLO las notificaciones NO leidas
+    @WebMethod(operationName = "encontrarNotificacionesDeUsuario")
     public List<Notificacion> encontrarNotificacionesDeUsuario(@WebParam(name = "idUsuario") int idUsuario) {
         Usuario user = encontrarUsuarioPorID(idUsuario);
         
         return notificacionFacade.encontrarNotificacionesDeUsuario(user);
     }
     
-    @WebMethod(operationName = "encontrarTodasLasNotificacionesDeUsuario") //Encuentra TODAS las notificaciones
+    @WebMethod(operationName = "encontrarTodasLasNotificacionesDeUsuario")
     public List<Notificacion> encontrarTodasLasNotificacionesDeUsuario(@WebParam(name = "idUsuario") int idUsuario) {
         Usuario user = encontrarUsuarioPorID(idUsuario);
         
@@ -553,7 +533,7 @@ public class crud {
         private List<Tag> crearTag(String nombre) {
         Tag tag = new Tag();
         
-        List<Tag> listaTag = tagFacade.encontrarTagPorNombre(nombre);  //supongo que el nombre es unica por archivo
+        List<Tag> listaTag = tagFacade.encontrarTagPorNombre(nombre);
         
         if(listaTag.isEmpty()){
             tag.setNombre(nombre);
@@ -563,13 +543,12 @@ public class crud {
             listaTag = tagFacade.encontrarTagPorNombre(nombre);
         }
         
-        return listaTag; //con esto consigo que no se creen archivos duplicados. Si el archivo ya está en la BD, lo referencio en vez
-                                // de crear uno nuevo
+        return listaTag;
     }
     
     
     
-    @WebMethod(operationName = "adjuntarTagEv") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "adjuntarTagEv")
     public boolean adjuntarTagEv(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idEvento") int idEvento){
         String[] partes = listaTags.split(",");
         List<Tag> tagCreado;
@@ -591,7 +570,7 @@ public class crud {
         return true;
     }
     
-    @WebMethod(operationName = "adjuntarTagUser") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "adjuntarTagUser")
     public boolean adjuntarTagUser(@WebParam(name = "listaTags") String listaTags, @WebParam(name = "idUsuario") int idUsuario){
         String[] partes = listaTags.split(",");
         List<Tag> tagCreado;
@@ -614,7 +593,7 @@ public class crud {
         return true;
     }
     
-    @WebMethod(operationName = "encontrarTagsDeEvento") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "encontrarTagsDeEvento")
     public List<Tag> encontrarTagsDeEvento(@WebParam(name = "idEvento") int idEvento){
         Evento ev = encontrarEventoPorID(idEvento);
         List<Tagevento> listaTagEv = tagEventoFacade.encontrarTagEv(ev);
@@ -628,7 +607,7 @@ public class crud {
         return listaTag;
     }
     
-    @WebMethod(operationName = "encontrarTagsDeUsuario") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "encontrarTagsDeUsuario")
     public List<Tag> encontrarTagsDeUsuario(@WebParam(name = "idUsuario") int idUsuario){
         Usuario user = encontrarUsuarioPorID(idUsuario);
         List<Tagusuario> listaTagEv = tagUsuarioFacade.encontrarTagUser(user);
@@ -642,7 +621,7 @@ public class crud {
         return listaTag;
     }
     
-    @WebMethod(operationName = "eliminarTagEv") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "eliminarTagEv")
     public boolean eliminarTagEv(@WebParam(name = "nombre") String nombre, @WebParam(name = "idEvento") int idEvento){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Evento ev = encontrarEventoPorID(idEvento);
@@ -665,7 +644,7 @@ public class crud {
         return success;
     }
     
-    @WebMethod(operationName = "eliminarTagUser") //Cambia el estado del evento al booleano que se le pasa
+    @WebMethod(operationName = "eliminarTagUser")
     public boolean eliminarTagUser(@WebParam(name = "nombre") String nombre, @WebParam(name = "idUsuario") int idUsuario){
         List<Tag> tag = tagFacade.encontrarTagPorNombre(nombre);
         Usuario user = encontrarUsuarioPorID(idUsuario);
